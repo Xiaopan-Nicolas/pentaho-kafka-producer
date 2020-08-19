@@ -1,9 +1,16 @@
 package com.ruckuswireless.pentaho.kafka.producer;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import javax.security.auth.login.Configuration;
+import org.apache.commons.lang.StringUtils;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.LongSerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.Trans;
@@ -76,7 +83,36 @@ public class KafkaProducerStep extends BaseStep implements StepInterface {
 				ProducerConfig producerConfig = new ProducerConfig(substProperties);
 				logBasic(Messages.getString("KafkaProducerStep.CreateKafkaProducer.Message",
 						producerConfig.brokerList()));
-				data.producer = new Producer<Object, Object>(producerConfig);
+				// kerberos
+				String isSecurity = substProperties.getProperty("isSecureMode");
+				if("true".equalsIgnoreCase(isSecurity)){
+					if(StringUtils.isBlank(substProperties.getProperty("security.protocol"))){
+						substProperties.setProperty("security.protocol","SASL_PLAINTEXT");
+					}
+					if(StringUtils.isBlank(substProperties.getProperty("sasl.kerberos.service.name"))){
+						substProperties.setProperty("sasl.kerberos.service.name","kafka");
+					}
+					if(StringUtils.isBlank(substProperties.getProperty("kerberos.domain.name"))){
+						substProperties.setProperty("kerberos.domain.name","hadoop.hadoop.com");
+					}
+					if(StringUtils.isBlank(substProperties.getProperty("key.serializer"))){
+						substProperties.setProperty("key.serializer", StringSerializer.class.getName());
+					}
+					if(StringUtils.isBlank(substProperties.getProperty("value.serializer"))){
+						substProperties.setProperty("value.serializer", StringSerializer.class.getName());
+					}
+					System.setProperty("zookeeper.server.principal", substProperties.getProperty("zookeeper.server.principal"));
+					String confPath = System.getProperty("user.dir") + File.separator + "conf" + File.separator;
+					String krb5Conf = confPath + "krb5.conf";
+					System.setProperty("java.security.krb5.conf", krb5Conf);
+				}
+				substProperties.setProperty("bootstrap.servers",producerConfig.brokerList());
+				substProperties.setProperty("client.id",producerConfig.clientId());
+				Thread.currentThread().setContextClassLoader(null);
+				logBasic("此客户端配置的kerberos krb5.conf 配置：" + System.getProperty("java.security.krb5.conf"));
+				logBasic("此客户端配置的kerberos jaas.conf 配置：" + System.getProperty("java.security.auth.login.config"));
+				Configuration.setConfiguration(null);
+				data.producer = new KafkaProducer<String, String>(substProperties);
 			}
 
 			data.outputRowMeta = getInputRowMeta().clone();
@@ -149,7 +185,7 @@ public class KafkaProducerStep extends BaseStep implements StepInterface {
 			}
 
 			if (data.keyFieldNr < 0) {
-				data.producer.send(new KeyedMessage<Object, Object>(topic, message));
+				data.producer.send(new ProducerRecord<String, String>(topic, message.toString()));
 			} else {
 				byte[] key = null;
 				if (data.keyIsString) {
@@ -158,7 +194,7 @@ public class KafkaProducerStep extends BaseStep implements StepInterface {
 					key = data.keyFieldMeta.getBinary(r[data.keyFieldNr]);
 				}
 
-				data.producer.send(new KeyedMessage<Object, Object>(topic, key, message));
+				data.producer.send(new ProducerRecord<String, String>(topic, key.toString(), message.toString()));
 			}
 
 			incrementLinesOutput();

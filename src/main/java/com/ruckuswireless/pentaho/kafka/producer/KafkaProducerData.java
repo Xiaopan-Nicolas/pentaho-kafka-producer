@@ -1,7 +1,6 @@
 package com.ruckuswireless.pentaho.kafka.producer;
 
-import kafka.javaapi.producer.Producer;
-
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.trans.step.BaseStepData;
@@ -14,7 +13,7 @@ import org.pentaho.di.trans.step.StepDataInterface;
  */
 public class KafkaProducerData extends BaseStepData implements StepDataInterface {
 
-	Producer<Object, Object> producer;
+	KafkaProducer<String, String> producer;
 	RowMetaInterface outputRowMeta;
 	int messageFieldNr;
 	int keyFieldNr;

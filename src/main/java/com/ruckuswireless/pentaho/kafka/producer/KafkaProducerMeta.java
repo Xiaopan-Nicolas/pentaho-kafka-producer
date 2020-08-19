@@ -42,13 +42,20 @@ public class KafkaProducerMeta extends BaseStepMeta implements StepMetaInterface
 			"partitioner.class", "compression.codec", "compressed.topics", "message.send.max.retries",
 			"retry.backoff.ms", "topic.metadata.refresh.interval.ms", "queue.buffering.max.ms",
 			"queue.buffering.max.messages", "queue.enqueue.timeout.ms", "batch.num.messages", "send.buffer.bytes",
-			"client.id" };
+			"client.id","isSecureMode","security.protocol","sasl.kerberos.service.name","kerberos.domain.name","zookeeper.server.principal" };
 	public static final Map<String, String> KAFKA_PROPERTIES_DEFAULTS = new HashMap<String, String>();
 	static {
 		KAFKA_PROPERTIES_DEFAULTS.put("metadata.broker.list", "localhost:9092");
 		KAFKA_PROPERTIES_DEFAULTS.put("request.required.acks", "1");
 		KAFKA_PROPERTIES_DEFAULTS.put("producer.type", "sync");
 		KAFKA_PROPERTIES_DEFAULTS.put("serializer.class", "kafka.serializer.DefaultEncoder");
+		KAFKA_PROPERTIES_DEFAULTS.put("isSecureMode", "false");
+		KAFKA_PROPERTIES_DEFAULTS.put("zookeeper.server.principal", "zookeeper/hadoop.hadoop.com");
+		KAFKA_PROPERTIES_DEFAULTS.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+		KAFKA_PROPERTIES_DEFAULTS.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+		KAFKA_PROPERTIES_DEFAULTS.put("security.protocol", "SASL_PLAINTEXT");
+		KAFKA_PROPERTIES_DEFAULTS.put("sasl.kerberos.service.name", "kafka");
+		KAFKA_PROPERTIES_DEFAULTS.put("kerberos.domain.name", "hadoop.hadoop.com");
 	}
 
 	private Properties kafkaProperties = new Properties();
