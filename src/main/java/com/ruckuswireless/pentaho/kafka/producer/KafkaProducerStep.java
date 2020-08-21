@@ -1,6 +1,8 @@
 package com.ruckuswireless.pentaho.kafka.producer;
 
+import com.alibaba.fastjson.JSONObject;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -135,12 +137,22 @@ public class KafkaProducerStep extends BaseStep implements StepInterface {
 
 		try {
 			byte[] message = null;
-
-			if (data.messageIsString) {
-				message = getUTFBytes(data.messageFieldMeta.getString(r[data.messageFieldNr]));
+			/*if (data.messageIsString) {
+				HashMap<String,String> dataMap = new HashMap<String, String>(25);
+				for (int i = 0; i < r.length; i++) {
+					dataMap.put(r[data.messageFieldNr].toString(),data.messageFieldMeta.getString(r[data.messageFieldNr]));
+				}
+				String json = JSONObject.toJSONString(dataMap);
+				message = getUTFBytes(json);
 			} else {
 				message = data.messageFieldMeta.getBinary(r[data.messageFieldNr]);
+			}*/
+			JSONObject jsonObject = new JSONObject(25);
+			for (int i = 0; i < inputRowMeta.getFieldNames().length; i++) {
+				jsonObject.put(inputRowMeta.getFieldNames()[i],r[i]);
 			}
+			String json = jsonObject.toJSONString();
+			message = getUTFBytes(json);
 			String topic = environmentSubstitute(meta.getTopic());
 
 			if (isRowLevel()) {

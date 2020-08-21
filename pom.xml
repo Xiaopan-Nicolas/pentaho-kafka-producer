@@ -48,6 +48,11 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.58</version>
+		</dependency>
+		<dependency>
 			<groupId>pentaho-kettle</groupId>
 			<artifactId>kettle-engine</artifactId>
 			<version>${kettle.version}</version>
