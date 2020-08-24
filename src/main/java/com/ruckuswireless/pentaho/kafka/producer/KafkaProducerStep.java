@@ -168,14 +168,14 @@ public class KafkaProducerStep extends BaseStep implements StepInterface {
 				return false;
 			}
 		}
-
+    // 二进制类型 尽可能使用base64 编码，这里暂时不修改了
 		try {
-			byte[] message = null;
+			String message = null;
 
 			if (data.messageIsString) {
-				message = getUTFBytes(data.messageFieldMeta.getString(r[data.messageFieldNr]));
+				message = data.messageFieldMeta.getString(r[data.messageFieldNr]);
 			} else {
-				message = data.messageFieldMeta.getBinary(r[data.messageFieldNr]);
+				message = new String(data.messageFieldMeta.getBinary(r[data.messageFieldNr]));
 			}
 			String topic = environmentSubstitute(meta.getTopic());
 
@@ -185,16 +185,16 @@ public class KafkaProducerStep extends BaseStep implements StepInterface {
 			}
 
 			if (data.keyFieldNr < 0) {
-				data.producer.send(new ProducerRecord<String, String>(topic, message.toString()));
+				data.producer.send(new ProducerRecord<String, String>(topic, message));
 			} else {
-				byte[] key = null;
+				String key = null;
 				if (data.keyIsString) {
-					key = getUTFBytes(data.keyFieldMeta.getString(r[data.keyFieldNr]));
+					key = data.keyFieldMeta.getString(r[data.keyFieldNr]);
 				} else {
-					key = data.keyFieldMeta.getBinary(r[data.keyFieldNr]);
+					key = new String(data.keyFieldMeta.getBinary(r[data.keyFieldNr]));
 				}
 
-				data.producer.send(new ProducerRecord<String, String>(topic, key.toString(), message.toString()));
+				data.producer.send(new ProducerRecord<String, String>(topic, key, message));
 			}
 
 			incrementLinesOutput();
