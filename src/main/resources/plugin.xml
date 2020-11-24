@@ -24,6 +24,7 @@
 		<library name="lib/zookeeper-3.5.1.jar"/>
 		<library name="lib/xercesImpl-2.9.1.jar"/>
 		<library name="lib/xml-apis-1.3.04.jar"/>
+		<library name="lib/fastjson-1.2.75.jar"/>
 	</libraries>
     
 	<localized_category>

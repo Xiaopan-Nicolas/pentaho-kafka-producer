@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.security.auth.login.Configuration;
+
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -173,7 +175,13 @@ public class KafkaProducerStep extends BaseStep implements StepInterface {
 			String message = null;
 
 			if (data.messageIsString) {
-				message = data.messageFieldMeta.getString(r[data.messageFieldNr]);
+//				message = data.messageFieldMeta.getString(r[data.messageFieldNr]);
+				JSONObject jsonObject = new JSONObject(25);
+				for (int i = 0; i < (inputRowMeta.getFieldNames()).length; i++){
+					jsonObject.put(inputRowMeta.getFieldNames()[i], r[i]);
+				}
+				message = jsonObject.toJSONString();
+
 			} else {
 				message = new String(data.messageFieldMeta.getBinary(r[data.messageFieldNr]));
 			}

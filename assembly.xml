@@ -32,6 +32,7 @@
 				<include>velocity-1.7.jar</include>
 				<include>zkclient-0.10.jar</include>
 				<include>zookeeper-3.5.1.jar</include>
+				<include>fastjson-1.2.75.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
